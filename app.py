@@ -1,49 +1,35 @@
 import streamlit as st
 import pandas as pd
 
-st.title("📊 Любими неща – класна анкета")
+st.title("📊 Класна анкета – оценки")
 
 # Инициализация на данните
-if "colors" not in st.session_state:
-    st.session_state.colors = {
-        "Червен": 0,
-        "Син": 0,
-        "Зелен": 0,
-        "Жълт": 0
-    }
+if "grades" not in st.session_state:
+    st.session_state.grades = {}  # ключ = име, стойност = оценка
 
-if "sports" not in st.session_state:
-    st.session_state.sports = {
-        "Футбол": 0,
-        "Баскетбол": 0,
-        "Волейбол": 0,
-        "Плуване": 0
-    }
+st.subheader("Въведи информация")
 
-st.subheader("Избери любими неща")
+# Вход за име и оценка
+name = st.text_input("Име на ученика:")
+grade = st.number_input("Оценка (2–6):", min_value=2, max_value=6, step=1)
 
-color = st.selectbox("Любим цвят:", list(st.session_state.colors.keys()))
-sport = st.selectbox("Любим спорт:", list(st.session_state.sports.keys()))
-
-if st.button("Запази избора"):
-    st.session_state.colors[color] += 1
-    st.session_state.sports[sport] += 1
-    st.success("Изборът е записан!")
+if st.button("Запази оценката"):
+    if name.strip() == "":
+        st.warning("Моля, въведете име!")
+    else:
+        st.session_state.grades[name] = grade
+        st.success(f"Оценката на {name} е записана!")
 
 st.divider()
 
 st.subheader("📝 Резултати")
 
-# Графика за цветовете
-st.write("Любими цветове")
-colors_df = pd.DataFrame.from_dict(
-    st.session_state.colors, orient="index", columns=["Брой"]
-)
-st.bar_chart(colors_df)
-
-# Графика за спортовете
-st.write("Любими спортове")
-sports_df = pd.DataFrame.from_dict(
-    st.session_state.sports, orient="index", columns=["Брой"]
-)
-st.bar_chart(sports_df)
+if st.session_state.grades:
+    # Превръщаме речника в DataFrame
+    grades_df = pd.DataFrame.from_dict(
+        st.session_state.grades, orient="index", columns=["Оценка"]
+    )
+    grades_df.index.name = "Ученик"
+    st.bar_chart(grades_df)
+else:
+    st.info("Все още няма записани оценки.")
