@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="Класен дневник", layout="centered")
+st.set_page_config(page_title="Класен дневник")
 
 st.title("📊 Класен дневник – оценки")
 
@@ -12,18 +12,23 @@ if "data" not in st.session_state:
 st.subheader("➕ Добавяне на оценка")
 
 name = st.text_input("👤 Име на ученика")
-subject = st.selectbox("📘 Предмет", ["Математика", "БЕЛ", "Английски", "ИТ", "Физика"])
+subject = st.selectbox(
+    "📘 Предмет",
+    ["Математика", "БЕЛ", "Английски", "ИТ", "Физика"]
+)
 grade = st.slider("⭐ Оценка", 2, 6, 4)
 
 if st.button("Запази"):
     if name.strip() == "":
         st.warning("Моля, въведи име!")
     else:
-        st.session_state.data.append({
-            "Ученик": name,
-            "Предмет": subject,
-            "Оценка": grade
-        })
+        st.session_state.data.append(
+            {
+                "Ученик": name,
+                "Предмет": subject,
+                "Оценка": grade,
+            }
+        )
         st.success(f"Оценката на {name} е записана!")
 
 st.divider()
@@ -48,13 +53,13 @@ if st.session_state.data:
 
     st.divider()
 
-    st.subheader("📊 Диаграма – оценки по ученици")
+    st.subheader("📊 Средна оценка по ученици")
     avg_by_student = df.groupby("Ученик")["Оценка"].mean()
     st.bar_chart(avg_by_student)
 
-   st.subheader("🥧 Разпределение на оценките")
-grade_counts = df["Оценка"].value_counts().sort_index()
-st.bar_chart(grade_counts)
+    st.subheader("📊 Разпределение на оценките")
+    grade_counts = df["Оценка"].value_counts().sort_index()
+    st.bar_chart(grade_counts)
 
 else:
     st.info("Все още няма въведени оценки.")
