@@ -52,9 +52,9 @@ if st.session_state.data:
     avg_by_student = df.groupby("Ученик")["Оценка"].mean()
     st.bar_chart(avg_by_student)
 
-    st.subheader("🥧 Разпределение на оценките")
-    grade_counts = df["Оценка"].value_counts().sort_index()
-    st.pyplot(grade_counts.plot.pie(autopct="%1.0f%%", ylabel="").figure)
+   st.subheader("🥧 Разпределение на оценките")
+grade_counts = df["Оценка"].value_counts().sort_index()
+st.bar_chart(grade_counts)
 
 else:
     st.info("Все още няма въведени оценки.")
