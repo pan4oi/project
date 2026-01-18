@@ -1,35 +1,60 @@
 import streamlit as st
 import pandas as pd
 
-st.title("📊 Класна анкета – оценки")
+st.set_page_config(page_title="Класен дневник", layout="centered")
 
-# Инициализация на данните
-if "grades" not in st.session_state:
-    st.session_state.grades = {}  # ключ = име, стойност = оценка
+st.title("📊 Класен дневник – оценки")
 
-st.subheader("Въведи информация")
+# Инициализация
+if "data" not in st.session_state:
+    st.session_state.data = []
 
-# Вход за име и оценка
-name = st.text_input("Име на ученика:")
-grade = st.number_input("Оценка (2–6):", min_value=2, max_value=6, step=1)
+st.subheader("➕ Добавяне на оценка")
 
-if st.button("Запази оценката"):
+name = st.text_input("👤 Име на ученика")
+subject = st.selectbox("📘 Предмет", ["Математика", "БЕЛ", "Английски", "ИТ", "Физика"])
+grade = st.slider("⭐ Оценка", 2, 6, 4)
+
+if st.button("Запази"):
     if name.strip() == "":
-        st.warning("Моля, въведете име!")
+        st.warning("Моля, въведи име!")
     else:
-        st.session_state.grades[name] = grade
+        st.session_state.data.append({
+            "Ученик": name,
+            "Предмет": subject,
+            "Оценка": grade
+        })
         st.success(f"Оценката на {name} е записана!")
 
 st.divider()
 
-st.subheader("📝 Резултати")
+st.subheader("📝 Таблица с оценки")
 
-if st.session_state.grades:
-    # Превръщаме речника в DataFrame
-    grades_df = pd.DataFrame.from_dict(
-        st.session_state.grades, orient="index", columns=["Оценка"]
-    )
-    grades_df.index.name = "Ученик"
-    st.bar_chart(grades_df)
+if st.session_state.data:
+    df = pd.DataFrame(st.session_state.data)
+    st.dataframe(df, use_container_width=True)
+
+    st.divider()
+
+    st.subheader("📈 Статистика")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric("📊 Среден успех", round(df["Оценка"].mean(), 2))
+
+    with col2:
+        st.metric("👥 Брой оценки", len(df))
+
+    st.divider()
+
+    st.subheader("📊 Диаграма – оценки по ученици")
+    avg_by_student = df.groupby("Ученик")["Оценка"].mean()
+    st.bar_chart(avg_by_student)
+
+    st.subheader("🥧 Разпределение на оценките")
+    grade_counts = df["Оценка"].value_counts().sort_index()
+    st.pyplot(grade_counts.plot.pie(autopct="%1.0f%%", ylabel="").figure)
+
 else:
-    st.info("Все още няма записани оценки.")
+    st.info("Все още няма въведени оценки.")
